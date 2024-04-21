@@ -12,7 +12,7 @@ services:
     volumes:
       - ./Moodle:/var/www/html
       - ./Moodle_Data:/var/www/moodledata
-      - ./php.ini:/usr/local/etc/php/conf.d/php.ini
+      - php.ini:/usr/local/etc/php/conf.d/php.ini
     networks:
       - network
 
