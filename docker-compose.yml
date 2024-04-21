@@ -1,0 +1,80 @@
+version: '3'
+
+services:
+  moodle:
+    build: .
+    container_name: moodle
+    restart: always
+    environment:
+      - TZ=America/Fortaleza
+    ports:
+      - 8010:80
+    volumes:
+      - ./Moodle:/var/www/html
+      - ./Moodle_Data:/var/www/moodledata
+      - ./php.ini:/usr/local/etc/php/conf.d/php.ini
+    networks:
+      - network
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: postgres_password
+    ports:
+      - 8021:5432
+    volumes:
+      - ./PostgreSQL:/var/lib/postgresql/data
+    networks:
+      - network
+      
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin_user@email.com
+      PGADMIN_DEFAULT_PASSWORD: pgadmin_password
+    ports:
+      - 8012:80
+    volumes:
+      - ./PgAdmin:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - network
+
+  laravel:
+    build: ./Laravel/.
+    container_name: laravel
+    restart: always
+    volumes:
+      - ./Laravel:/var/www/
+    networks:
+      - network
+
+  nginx:
+    build: ./Laravel/.docker/nginx
+    container_name: nginx
+    restart: always
+    ports:
+      - 8013:80
+    volumes:
+      - ./Laravel:/var/www
+      - ./Laravel/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - app
+    networks:
+      - network
+
+volumes: 
+  PostgreSQL:
+  PgAdmin:
+  Moodle:
+  Laravel:
+
+networks: 
+  network:
+    driver: bridge
